@@ -9,9 +9,15 @@ const loginSchema = Joi.object({
   password: Joi.string().required().min(5).max(20)
 });
 
+const registerSchema = Joi.object({
+  username: Joi.string().max(20).min(5).required(),
+  email: Joi.string().email().required(),
+  password: Joi.string().required().min(5).max(20)
+});
+
 
 router.post('/api/userLogin', validator.body(loginSchema), userController.userLogin);
-router.post('/api/userSignUp');
+router.post('/api/userSignUp', validator.body(registerSchema), userController.userSignUp);
 
 
 module.exports = router;
