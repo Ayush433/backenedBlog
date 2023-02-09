@@ -1,13 +1,20 @@
 import React from 'react'
 import { useFormik } from 'formik'
 import * as Yup from 'yup';
+import { useUserLoginMutation } from '../features/auth/authApi';
+import { toast } from 'react-toastify';
 
 
 const Login = () => {
 
+
+  const [userLogin, { isError, isLoading, error }] = useUserLoginMutation();
+
+
+
   const loginSchema = Yup.object().shape({
     email: Yup.string().required('email is required'),
-    password: Yup.string().min(15, 'Too short').max(50, 'Too Long').required('password is required'),
+    password: Yup.string().min(5, 'Too short').max(50, 'Too Long').required('password is required'),
   });
 
 
@@ -16,8 +23,20 @@ const Login = () => {
       email: '',
       password: ''
     },
-    onSubmit: (val) => {
+    onSubmit: async (val) => {
+      try {
+        const user = {
+          email: val.email,
+          password: val.password
+        };
+        const response = await userLogin(user).unwrap();
+        console.log(response);
+        toast.success('successfully login');
+      } catch (err) {
+        console.log(err);
+        toast.error(err.data.message);
 
+      }
 
     },
     validationSchema: loginSchema
@@ -54,16 +73,26 @@ const Login = () => {
           </div>
 
           <div>
-            <button className='bg-blue-500 p-2 w-[40%] rounded' type='submit'>Submit</button>
+
+
+            <button className='bg-blue-500 p-2 w-[40%] rounded' type='submit'>
+
+
+              {isLoading === true ? <div className='h-7 w-7 mx-auto rounded-full   border-2 border-black border-t-white animate-spin'>
+              </div> : <h1>Submit</h1>}
+
+
+
+            </button>
           </div>
 
 
-        </div>
+        </div >
 
 
-      </form>
+      </form >
 
-    </div>
+    </div >
   )
 }
 

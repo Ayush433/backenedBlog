@@ -4,7 +4,7 @@ const postRoutes = require('./routes/postRoutes');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 const userRoutes = require('./routes/userRoutes');
-
+const cors = require('cors');
 mongoose.set('strictQuery', false);
 mongoose.connect(
   'mongodb+srv://Robin900:moles900@cluster0.jse9vfs.mongodb.net/Blog?retryWrites=true&w=majority', (err) => {
@@ -14,7 +14,7 @@ mongoose.connect(
     app.listen(5000);
   })
 
-
+app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(userRoutes);
