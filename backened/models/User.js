@@ -15,9 +15,9 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true
   },
-  // posts: [
-  //   { type: mongoose.Types.ObjectId, ref: 'Post' }
-  // ]
+  posts: [
+    { type: mongoose.Types.ObjectId, ref: 'Post' }
+  ]
 
 
 }, { timestamps: true });
