@@ -5,6 +5,8 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 const userRoutes = require('./routes/userRoutes');
 const cors = require('cors');
+const fileUpload = require('express-fileupload');
+
 mongoose.set('strictQuery', false);
 mongoose.connect(
   'mongodb+srv://Robin900:moles900@cluster0.jse9vfs.mongodb.net/Blog?retryWrites=true&w=majority', (err) => {
@@ -17,6 +19,11 @@ mongoose.connect(
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
+app.use(fileUpload({
+  createParentPath: true,
+  // abortOnLimit: true,
+  // limits: 1000000
+}));
 app.use(userRoutes);
 app.use(postRoutes);
 

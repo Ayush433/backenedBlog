@@ -11,8 +11,6 @@ const postSchema = Joi.object({
   // detail: Joi.string().required().min(150).max(1000),
   title: Joi.string().required(),
   detail: Joi.string().required(),
-  imageUrl: Joi.string().required(),
-  public_id: Joi.string().required(),
 });
 
 

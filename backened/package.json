@@ -1,8 +1,10 @@
 {
   "dependencies": {
     "bcrypt": "^5.1.0",
+    "cloudinary": "^1.33.0",
     "cors": "^2.8.5",
     "express": "^4.18.2",
+    "express-fileupload": "^1.4.0",
     "express-joi-validation": "^5.0.1",
     "express-joi-validator": "^2.0.1",
     "express-validation": "^4.1.0",
