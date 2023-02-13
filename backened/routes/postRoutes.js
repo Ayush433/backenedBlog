@@ -13,6 +13,15 @@ const postSchema = Joi.object({
   detail: Joi.string().required(),
 });
 
+const removeSchema = Joi.object({
+  post_id: Joi.string().required(),
+  public_id: Joi.string().required(),
+});
+
+const updateSchema = Joi.object({
+  title: Joi.string().required(),
+  detail: Joi.string().required(),
+});
 
 const noAllow = (req, res) => res.status(405).json({
   status: 405,
@@ -22,9 +31,9 @@ const noAllow = (req, res) => res.status(405).json({
 router.get('/', postController.getAllPosts);
 
 router.route('/api/createPost').post(auth.checkAuth, validator.body(postSchema), postController.createPost).all(noAllow);
-router.patch('/api/update/post/:id', auth.checkAuth, postController.updatePost);
+router.patch('/api/post/update', auth.checkAuth, postController.updatePost);
 router.get('/api/getPostUser', auth.checkAuth, postController.getPostByUser);
-router.delete('/api/remove/post/:id', auth.checkAuth, postController.removePost);
+router.delete('/api/post/remove', auth.checkAuth, validator.body(removeSchema), postController.removePost);
 
 
 
