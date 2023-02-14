@@ -3,6 +3,7 @@ const User = require('../models/User');
 const path = require('path');
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
+const { isValidObjectId } = require('mongoose');
 
 
 const posts = [
@@ -12,9 +13,10 @@ const posts = [
 
 
 module.exports.getAllPosts = (req, res) => {
-
   return res.status(200).json(posts);
 }
+
+
 
 module.exports.getPostByUser = (req, res) => {
   return res.status(200).json(posts);
@@ -86,27 +88,97 @@ module.exports.createPost = async (req, res) => {
 
 
 module.exports.updatePost = async (req, res) => {
-  const { title, detail, image, post_id } = req.body;
-  if (req?.files || req?.files?.image) {
-    return res.status(400).json('please provide image file ');
-  } else {
+  const { title, detail, image, post_id, public_id } = req.body;
 
-    try {
+  try {
 
-      await Post.findByIdAndUpdate({ _id: post_id }, {
-        title,
-        detail
+    if (isValidObjectId(post_id)) {
+
+      if (req.files?.image && public_id) {
+
+
+        cloudinary.config({
+          api_key: '316226597746222',
+          api_secret: 'YbnHayJ00pMZjzCnVFrois70iKc',
+          cloud_name: 'dx5eyrlaf'
+        });
+
+        const response = await cloudinary.uploader.destroy(public_id);
+
+
+        if (response.result === 'not found') {
+          return res.status(400).json({
+            status: 400,
+            message: response
+          });
+        } else {
+
+
+          const file = req.files.image;
+          const fileName = path.extname(file.name);
+          const extensions = ['.png', '.jpg', '.jpeg'];
+
+          if (!extensions.includes(fileName)) {
+            return res.status(400).json('please provide valid image file ');
+          }
+
+          file.mv(`./uploads/${file.name}`, (err) => {
+            // console.log(err);
+          })
+
+          cloudinary.uploader.upload(`./uploads/${file.name}`, { upload_preset: "sample_pics" }, async (err, result) => {
+            if (err) {
+              return res.status(401).json({
+                status: 401,
+                message: `${err.message}`
+              });
+            } else {
+              fs.unlink(`./uploads/${file.name}`, (err) => {
+
+              })
+              await Post.findByIdAndUpdate({ _id: post_id }, {
+                title,
+                detail,
+                image: result.secure_url,
+                public_id: result.public_id
+              })
+              return res.status(200).json({
+                status: 200,
+                message: 'successfully updated'
+              });
+
+            }
+
+          });
+
+
+        }
+
+      } else {
+        await Post.findByIdAndUpdate({ _id: post_id }, {
+          title, detail
+        });
+        return res.status(200).json({
+          status: 200,
+          message: 'successfully updated'
+        });
+      }
+
+    } else {
+      return res.status(400).json({
+        status: 400,
+        message: 'please provide valid id'
       });
-
-      return res.status(200).json('successfully updated');
-
-    } catch (err) {
-
-      return res.status(400).json('something went wrong');
     }
 
-
+  } catch (err) {
+    return res.status(400).json({
+      status: 400,
+      message: 'something went wrong'
+    });
   }
+
+
 }
 
 
@@ -117,18 +189,34 @@ module.exports.removePost = async (req, res) => {
 
   try {
 
-    cloudinary.config({
-      api_key: '316226597746222',
-      api_secret: 'YbnHayJ00pMZjzCnVFrois70iKc',
-      cloud_name: 'dx5eyrlaf'
-    });
+    if (isValidObjectId(post_id)) {
 
-    const response = await cloudinary.uploader.destroy(public_id);
-    if (response.result === 'not found') {
-      return res.status(400).json(response);
+      cloudinary.config({
+        api_key: '316226597746222',
+        api_secret: 'YbnHayJ00pMZjzCnVFrois70iKc',
+        cloud_name: 'dx5eyrlaf'
+      });
+
+      const response = await cloudinary.uploader.destroy(public_id);
+      if (response.result === 'not found') {
+        return res.status(400).json({
+          status: 400,
+          message: response
+        });
+      } else {
+        const response = await Post.findByIdAndDelete({ _id: post_id });
+        return res.status(200).json({
+          status: 200,
+          message: 'successfully removed'
+        });
+
+      }
+
     } else {
-      await Post.findByIdAndDelete({ _id: post_id });
-      return res.status(200).json('successfully removed');
+      return res.status(400).json({
+        status: 400,
+        message: 'please provide valid id'
+      });
     }
 
   } catch (err) {

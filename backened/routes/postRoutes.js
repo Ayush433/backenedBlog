@@ -21,6 +21,9 @@ const removeSchema = Joi.object({
 const updateSchema = Joi.object({
   title: Joi.string().required(),
   detail: Joi.string().required(),
+  post_id: Joi.string().required(),
+  image: Joi.optional(),
+  public_id: Joi.optional(),
 });
 
 const noAllow = (req, res) => res.status(405).json({
@@ -31,7 +34,7 @@ const noAllow = (req, res) => res.status(405).json({
 router.get('/', postController.getAllPosts);
 
 router.route('/api/createPost').post(auth.checkAuth, validator.body(postSchema), postController.createPost).all(noAllow);
-router.patch('/api/post/update', auth.checkAuth, postController.updatePost);
+router.patch('/api/post/update', auth.checkAuth, validator.body(updateSchema), postController.updatePost);
 router.get('/api/getPostUser', auth.checkAuth, postController.getPostByUser);
 router.delete('/api/post/remove', auth.checkAuth, validator.body(removeSchema), postController.removePost);
 
